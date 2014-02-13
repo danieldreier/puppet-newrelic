@@ -34,8 +34,11 @@ class newrelic (
 
   case $::osfamily {
     'Debian': {
-      $add_repo_cmd     = '/usr/bin/wget -O /etc/apt/sources.list.d/newrelic.list http://download.newrelic.com/debian/newrelic.list'
-      $add_repo_key_cmd = '/usr/bin/apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 548C16BF'
+      $add_repo_cmd     = '/usr/bin/wget -O \
+      /etc/apt/sources.list.d/newrelic.list \
+      http://download.newrelic.com/debian/newrelic.list'
+      $add_repo_key_cmd = '/usr/bin/apt-key adv --keyserver\
+      keyserver.ubuntu.com --recv-keys 548C16BF'
       $update_repos_cmd = '/usr/bin/apt-get update -y -qq'
 
       exec { 'add_newrelic_repo':
@@ -48,7 +51,8 @@ class newrelic (
         command => $add_repo_key_cmd,
         require => Exec['add_newrelic_repo'],
         notify  => Exec['update_repos'],
-        unless  => '/usr/bin/test `/usr/bin/apt-key list | /bin/grep 548C16BF -c` -eq 1'
+        unless  => '/usr/bin/test `/usr/bin/apt-key list | \
+        /bin/grep 548C16BF -c` -eq 1'
       }
 
       exec { 'update_repos':
@@ -74,12 +78,13 @@ class newrelic (
     owner   => 'root',
     group   => 'newrelic',
     notify  => Service['newrelic-sysmond'],
-    content  => template('newrelic/nrsysmond.cfg.erb')
+    content => template('newrelic/nrsysmond.cfg.erb')
   }
 
   service { 'newrelic-sysmond':
     ensure  => running,
     enable  => true,
-    require => [ Package['newrelic-sysmond'], File['/etc/newrelic/nrsysmond.cfg'] ]
+    require => [Package['newrelic-sysmond'],
+                File['/etc/newrelic/nrsysmond.cfg'] ]
   }
 }
